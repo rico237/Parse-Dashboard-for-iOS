@@ -109,20 +109,27 @@ class Auth: NSObject {
     }
     
     private func authenticateWithBiometrics(completion: @escaping (Bool)->Void) {
-        BioMetricAuthenticator.authenticateWithBioMetrics(reason: "", cancelTitle: nil, success: {
-            completion(true)
-        }) { error in
-            if error == .fallback || error == .biometryLockedout{
-                completion(false)
+        BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { (result) in
+            switch result {
+            case .success:
+                completion(true)
+                
+            case .failure(let error):
+                if error == .fallback || error == .biometryLockedout{
+                    completion(false)
+                }
             }
         }
     }
     
     private func authenticateWithPassword(success: @escaping ()->Void) {
-        BioMetricAuthenticator.authenticateWithPasscode(reason: "", cancelTitle: nil, success: {
-            success()
-        }) { (error) in
-            print(error)
+        BioMetricAuthenticator.authenticateWithPasscode(reason: "", cancelTitle: nil) { (result) in
+            switch result {
+            case .success:
+                success()
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 }
